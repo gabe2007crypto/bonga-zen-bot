@@ -4,7 +4,7 @@ import random
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Dummy HTTP server so Render Web Service detects an open port immediately
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -21,47 +21,28 @@ def run_http_server():
 # Pull secrets safely from environment variables
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 SOL_WALLET = os.environ.get("SOL_WALLET", "YOUR_SOL_WALLET_ADDRESS_HERE").strip()
-MINI_APP_URL = os.environ.get("MINI_APP_URL", "https://preeminent-biscochitos-5bf4db.netlify.app").strip().strip('"').strip("'")
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
 VIBES = [
     "✌️ 'Peace comes from within. Do not seek it without.'",
     "🌸 'Keep your frequency high and your stress low.'",
-    "🧘 'Inhale green candles, exhale bad vibes.'",
+    "🧘 'Inhale calm energy, exhale tension.'",
     "💚 'The pack moves together in peace and harmony.'",
     "✨ 'Chill out, hold strong, and raise the vibe.'"
 ]
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    markup = InlineKeyboardMarkup()
-    app_btn = InlineKeyboardButton(
-        text="🧘 Open Full Visual & Sound Experience ✌️", 
-        web_app=WebAppInfo(url=MINI_APP_URL)
-    )
-    markup.add(app_btn)
-
     welcome_text = (
         "✌️ **Welcome to Bonga Zen!** 🧘‍♂️\n\n"
-        "Your personal space to breathe, relax, and keep your frequency high.\n\n"
+        "Your personal space to breathe, relax, and keep your frequency high right here in chat.\n\n"
         "**Available Commands:**\n"
-        "✨ `/app` - Launch full visual meditation space with audio\n"
         "🟢 `/zen` or `/breathe` - Start 2-cycle chat breathing (20s Inhale / 20s Hold)\n"
-        "🌸 `/vibe` - Get a positive hippie affirmation\n"
+        "🌸 `/vibe` - Get a positive affirmation\n"
         "💚 `/tip` - Support the dev wallet"
     )
-    bot.reply_to(message, welcome_text, parse_mode="Markdown", reply_markup=markup)
-
-@bot.message_handler(commands=['app', 'meditate'])
-def launch_mini_app(message):
-    markup = InlineKeyboardMarkup()
-    app_btn = InlineKeyboardButton(
-        text="🧘 Tap to Start Visual Session ✌️", 
-        web_app=WebAppInfo(url=MINI_APP_URL)
-    )
-    markup.add(app_btn)
-    bot.reply_to(message, "Tap below to open your full visual breathing experience:", reply_markup=markup)
+    bot.reply_to(message, welcome_text, parse_mode="Markdown")
 
 @bot.message_handler(commands=['vibe'])
 def send_vibe(message):
@@ -106,7 +87,7 @@ def start_zen(message):
 def send_tip(message):
     tip_text = (
         "💚 **Support Bonga Zen Bot Dev** ✌️\n\n"
-        "If this bot brought you peace, consider dropping a small $BONGA or $SOL tip to keep it running:\n\n"
+        "If this bot brought you peace, consider dropping a small tip to keep it running:\n\n"
         f"`{SOL_WALLET}`\n\n"
         "*(Click address above to copy)*"
     )
