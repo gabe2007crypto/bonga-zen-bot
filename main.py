@@ -99,6 +99,6 @@ def send_tip(message):
     )
     bot.reply_to(message, tip_text, parse_mode="Markdown")
 
-if name == "main":
+if __name__ == "__main__":
     print("Bonga Zen Bot is running live! 🚀")
     bot.infinity_polling()
