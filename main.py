@@ -17,7 +17,6 @@ def run_http_server():
     server = HTTPServer(("0.0.0.0", port), SimpleHTTPRequestHandler)
     server.serve_forever()
 
-# Pull secrets safely from environment variables
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 SOL_WALLET = os.environ.get("SOL_WALLET", "YOUR_SOL_WALLET_ADDRESS_HERE").strip()
 
@@ -31,13 +30,17 @@ VIBES = [
     "✨ 'Chill out, hold strong, and raise the vibe.'"
 ]
 
+# Reliable direct media URLs (Swap the GIF URL for your custom artwork!)
+ZEN_AUDIO_URL = "https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg" 
+ZEN_ANIMATION_GIF = "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3h0Y3h5am84aHhhcHgwdmVpZGpzZnFyeWJ3YmZ4ZzBveHZ5cHp1aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Lp8kVSaKEKVW8V7q8m/giphy.gif"
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     welcome_text = (
         "✌️ **Welcome to Bonga Zen!** 🧘‍♂️\n\n"
         "Your personal space to breathe, relax, and keep your frequency high right here in chat.\n\n"
         "**Available Commands:**\n"
-        "🟢 `/zen` or `/breathe` - Start 2-cycle chat breathing (15s per phase)\n"
+        "🟢 `/zen` or `/breathe` - Start 10-second animated breathing + ambient audio\n"
         "🌸 `/vibe` - Get a positive affirmation\n"
         "💚 `/tip` - Support the dev wallet"
     )
@@ -50,38 +53,79 @@ def send_vibe(message):
 
 @bot.message_handler(commands=['zen', 'breathe'])
 def start_zen(message):
-    msg = bot.reply_to(message, "🧘 **Starting Bonga Zen Session...**\nGet comfortable and clear your mind.", parse_mode="Markdown")
+    # 1. Send ambient audio with crash-protection
+    try:
+        bot.send_audio(
+            message.chat.id, 
+            ZEN_AUDIO_URL, 
+            caption="🎧 *Playing Bonga Zen Ambient Soundscape...*", 
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        print(f"Audio error: {e}")
+
+    # 2. Send visual animation with crash-protection
+    try:
+        msg = bot.send_animation(
+            message.chat.id,
+            ZEN_ANIMATION_GIF,
+            caption="🧘 **Starting Bonga Zen Session (10s intervals)...**",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        print(f"Animation error: {e}")
+        # Fallback to text if the image link ever fails
+        msg = bot.send_message(
+            message.chat.id, 
+            "🧘 **Starting Bonga Zen Session...**", 
+            parse_mode="Markdown"
+        )
+        
     time.sleep(2)
 
-    # 15 seconds per phase
+    # 10 seconds per phase
     phases = [
-        ("🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n🌸 **Inhale deeply...** (15s)", 15),
-        ("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣\n🧘 **Hold your breath...** (15s)", 15),
-        ("🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦\n💨 **Exhale slowly...** (15s)", 15),
-        ("🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨\n✌️ **Rest and hold...** (15s)", 15)
+        ("🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n🌸 **Inhale deeply...** (10s)", 10),
+        ("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣\n🧘 **Hold your breath...** (10s)", 10),
+        ("🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦\n💨 **Exhale slowly...** (10s)", 10),
+        ("🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨\n✌️ **Rest and hold...** (10s)", 10)
     ]
 
     for cycle in range(2):
         for text, duration in phases:
-            bot.edit_message_text(
-                chat_id=msg.chat.id,
-                message_id=msg.message_id,
-                text=f"🧘 **Bonga Zen Breathing** (Cycle {cycle+1}/2)\n\n{text}",
-                parse_mode="Markdown"
-            )
+            try:
+                # Check if we are editing a media caption or a plain text message
+                if msg.content_type == 'animation':
+                    bot.edit_message_caption(
+                        chat_id=msg.chat.id,
+                        message_id=msg.message_id,
+                        caption=f"🧘 **Bonga Zen Breathing** (Cycle {cycle+1}/2)\n\n{text}",
+                        parse_mode="Markdown"
+                    )
+                else:
+                    bot.edit_message_text(
+                        chat_id=msg.chat.id,
+                        message_id=msg.message_id,
+                        text=f"🧘 **Bonga Zen Breathing** (Cycle {cycle+1}/2)\n\n{text}",
+                        parse_mode="Markdown"
+                    )
+            except Exception:
+                pass
             time.sleep(duration)
 
     completion_text = (
         "🌟 **Zen Achieved!** 🌟\n\n"
-        "You completed 2 deep breathing cycles and raised your frequency! ✌️💚\n\n"
+        "You completed your breathing session and raised your frequency! ✌️💚\n\n"
         f"✌️ *Support the bot dev:* `{SOL_WALLET}`"
     )
-    bot.edit_message_text(
-        chat_id=msg.chat.id,
-        message_id=msg.message_id,
-        text=completion_text,
-        parse_mode="Markdown"
-    )
+    
+    try:
+        if msg.content_type == 'animation':
+            bot.edit_message_caption(chat_id=msg.chat.id, message_id=msg.message_id, caption=completion_text, parse_mode="Markdown")
+        else:
+            bot.edit_message_text(chat_id=msg.chat.id, message_id=msg.message_id, text=completion_text, parse_mode="Markdown")
+    except Exception:
+        bot.reply_to(message, completion_text, parse_mode="Markdown")
 
 @bot.message_handler(commands=['tip', 'dev'])
 def send_tip(message):
@@ -94,8 +138,8 @@ def send_tip(message):
     bot.reply_to(message, tip_text, parse_mode="Markdown")
 
 if __name__ == "__main__":
-    # Start the HTTP web server in the background so Render port check passes instantly
     threading.Thread(target=run_http_server, daemon=True).start()
+    print("Bonga Zen Bot is running live with Media! 🚀")
     
-    print("Bonga Zen Bot is running live! 🚀")
-    bot.infinity_polling()
+    # Adjusted polling to prevent sudden disconnects
+    bot.infinity_polling(timeout=10, long_polling_timeout=5)
