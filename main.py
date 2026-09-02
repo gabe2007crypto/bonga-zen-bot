@@ -4,7 +4,6 @@ import random
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Dummy HTTP server so Render Web Service detects an open port immediately
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -38,7 +37,7 @@ def send_welcome(message):
         "✌️ **Welcome to Bonga Zen!** 🧘‍♂️\n\n"
         "Your personal space to breathe, relax, and keep your frequency high right here in chat.\n\n"
         "**Available Commands:**\n"
-        "🟢 `/zen` or `/breathe` - Start 2-cycle chat breathing (20s Inhale / 20s Hold)\n"
+        "🟢 `/zen` or `/breathe` - Start 2-cycle chat breathing (15s per phase)\n"
         "🌸 `/vibe` - Get a positive affirmation\n"
         "💚 `/tip` - Support the dev wallet"
     )
@@ -54,11 +53,12 @@ def start_zen(message):
     msg = bot.reply_to(message, "🧘 **Starting Bonga Zen Session...**\nGet comfortable and clear your mind.", parse_mode="Markdown")
     time.sleep(2)
 
+    # 15 seconds per phase
     phases = [
-        ("🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n🌸 **Inhale deeply...** (20s)", 20),
-        ("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣\n🧘 **Hold your breath...** (20s)", 20),
-        ("🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦\n💨 **Exhale slowly...** (20s)", 20),
-        ("🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨\n✌️ **Rest and hold...** (20s)", 20)
+        ("🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n🌸 **Inhale deeply...** (15s)", 15),
+        ("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣\n🧘 **Hold your breath...** (15s)", 15),
+        ("🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦\n💨 **Exhale slowly...** (15s)", 15),
+        ("🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨\n✌️ **Rest and hold...** (15s)", 15)
     ]
 
     for cycle in range(2):
