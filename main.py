@@ -30,7 +30,6 @@ VIBES = [
     "✨ 'Chill out, hold strong, and raise the vibe.'"
 ]
 
-# Reliable direct media URLs (Swap the GIF URL for your custom artwork!)
 ZEN_AUDIO_URL = "https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg" 
 ZEN_ANIMATION_GIF = "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3h0Y3h5am84aHhhcHgwdmVpZGpzZnFyeWJ3YmZ4ZzBveHZ5cHp1aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Lp8kVSaKEKVW8V7q8m/giphy.gif"
 
@@ -53,7 +52,6 @@ def send_vibe(message):
 
 @bot.message_handler(commands=['zen', 'breathe'])
 def start_zen(message):
-    # 1. Send ambient audio with crash-protection
     try:
         bot.send_audio(
             message.chat.id, 
@@ -64,7 +62,6 @@ def start_zen(message):
     except Exception as e:
         print(f"Audio error: {e}")
 
-    # 2. Send visual animation with crash-protection
     try:
         msg = bot.send_animation(
             message.chat.id,
@@ -74,7 +71,6 @@ def start_zen(message):
         )
     except Exception as e:
         print(f"Animation error: {e}")
-        # Fallback to text if the image link ever fails
         msg = bot.send_message(
             message.chat.id, 
             "🧘 **Starting Bonga Zen Session...**", 
@@ -83,7 +79,6 @@ def start_zen(message):
         
     time.sleep(2)
 
-    # 10 seconds per phase
     phases = [
         ("🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩\n🌸 **Inhale deeply...** (10s)", 10),
         ("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣\n🧘 **Hold your breath...** (10s)", 10),
@@ -94,7 +89,6 @@ def start_zen(message):
     for cycle in range(2):
         for text, duration in phases:
             try:
-                # Check if we are editing a media caption or a plain text message
                 if msg.content_type == 'animation':
                     bot.edit_message_caption(
                         chat_id=msg.chat.id,
@@ -116,7 +110,7 @@ def start_zen(message):
     completion_text = (
         "🌟 **Zen Achieved!** 🌟\n\n"
         "You completed your breathing session and raised your frequency! ✌️💚\n\n"
-        f"✌️ *Support the bot dev:* `{SOL_WALLET}`"
+        f"✌️ *Support the bot dev (Solana - SOL):* `{SOL_WALLET}`"
     )
     
     try:
@@ -132,6 +126,7 @@ def send_tip(message):
     tip_text = (
         "💚 **Support Bonga Zen Bot Dev** ✌️\n\n"
         "If this bot brought you peace, consider dropping a small tip to keep it running:\n\n"
+        "**Network/Coin:** Solana (SOL)\n"
         f"`{SOL_WALLET}`\n\n"
         "*(Click address above to copy)*"
     )
@@ -140,6 +135,4 @@ def send_tip(message):
 if __name__ == "__main__":
     threading.Thread(target=run_http_server, daemon=True).start()
     print("Bonga Zen Bot is running live with Media! 🚀")
-    
-    # Adjusted polling to prevent sudden disconnects
     bot.infinity_polling(timeout=10, long_polling_timeout=5)
